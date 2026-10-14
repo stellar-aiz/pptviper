@@ -1,0 +1,15 @@
+.venv/
+.worktrees/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.env
+.env.*
+!.env.example
+auth.json
+internal_storage.json
+version.json
+.DS_Store
