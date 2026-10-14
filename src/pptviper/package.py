@@ -11,6 +11,7 @@ from zipfile import BadZipFile, ZipFile
 from defusedxml.common import DefusedXmlException
 from defusedxml.ElementTree import DefusedXMLParser
 
+from pptviper.image_headers import dimensions
 from pptviper.report import Report
 
 P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
@@ -23,6 +24,7 @@ class Package:
     def __init__(self, source: str | Path | bytes, report: Report):
         self.report = report
         self.roots: dict[str, Element] = {}
+        self.images: dict[str, dict] = {}
         self.names: set[str] = set()
         self.failed: set[str] = set()
         self.rels_cache: dict[str, dict[str, tuple[str, str, bool]]] = {}
@@ -57,6 +59,7 @@ class Package:
                         or name == "[Content_Types].xml"
                         else None
                     )
+                    prefix = bytearray()
                     try:
                         with archive.open(entry) as stream:
                             while True:
@@ -77,8 +80,12 @@ class Package:
                                     return
                                 if parser:
                                     parser.feed(chunk)
+                                elif len(prefix) < 65536:
+                                    prefix.extend(chunk[: 65536 - len(prefix)])
                         if parser:
                             self.roots[name] = parser.close()
+                        else:
+                            self.images[name] = dimensions(bytes(prefix))
                         report.state("unreadable-part", name, "pass")
                     except (
                         ParseError,

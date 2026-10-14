@@ -40,7 +40,17 @@ LAYOUT_RULES = (
     "table-cell-overflow",
     "table-overflow",
 )
-RULES = BASE_RULES + NEW_RULES + LAYOUT_RULES
+COLOR_RULES = (
+    "low-contrast",
+    "low-contrast-non-text",
+    "off-theme-color",
+    "near-duplicate-color",
+    "color-count",
+    "image-distorted",
+    "image-low-resolution",
+    "image-crop-outside",
+)
+RULES = BASE_RULES + NEW_RULES + LAYOUT_RULES + COLOR_RULES
 THRESHOLDS: dict[str, int | float | None] = {
     "edge-margin": 457200,
     "too-close": 273600,

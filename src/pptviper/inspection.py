@@ -13,6 +13,7 @@ from pptviper.fonts import FontBook
 from pptviper.geometry import A, Bounds, Matrix, pair, transform
 from pptviper.inheritance import NS, chain, ph, resolve, xfrm
 from pptviper.package import P, Package, R
+from pptviper.paint import background, visual
 from pptviper.report import Report, measurement
 from pptviper.semantics import metadata
 from pptviper.text_layout import evaluate, prepare
@@ -134,6 +135,10 @@ def inspect(
             node = holder.find(path, NS) if holder is not None else None
             if node is not None:
                 mapping.update(node.attrib)
+        report.slide_contexts[sid]["background"] = background(
+            root, layout, master, theme, mapping
+        )
+        report.slide_contexts[sid]["size"] = [width, height]
         contexts = [(sp, root, "slide", layout, master)]
         if root.get("showMasterSp", "1") not in ("0", "false"):
             if layout is not None and lp:
@@ -175,6 +180,9 @@ def inspect(
 
     evaluate(report, width, height)
     evaluate_rules(report, width, height)
+    from pptviper.color_rules import evaluate as evaluate_colors
+
+    evaluate_colors(report)
     return report
 
 
@@ -206,7 +214,9 @@ def _inspect_tree(
         (child, Matrix(), str(i), False, "")
         for i, child in reversed(list(enumerate(tree)))
     ]
+    order = 0
     while stack:
+        order += 1
         node, parent, path, parent_bad, alternative = stack.pop()
         if node.tag == MC + "AlternateContent":
             for b, branch in reversed(list(enumerate(node))):
@@ -351,6 +361,23 @@ def _inspect_tree(
                 stack.append(
                     (child, world, path + "/" + str(j), bounds is None, alternative)
                 )
+        properties["visual"] = visual(
+            node, shapes, properties, theme, mapping, package, part, order
+        )
+        if (
+            world.b.low != 0
+            or world.b.high != 0
+            or world.c.low != 0
+            or world.c.high != 0
+            or world.a.low <= 0
+            or world.d.low <= 0
+        ):
+            for paint in ("fill", "line"):
+                if properties["visual"][paint].get("kind") == "gradFill":
+                    properties["visual"][paint]["angle"] = None
+                    properties["visual"][paint]["unknown"].append(
+                        "Rotated or reflected gradient projection is unresolved"
+                    )
         properties["semantic"] = metadata(
             node, shapes, parent, world, layout, layout_part, theme
         )
@@ -586,6 +613,34 @@ def _table_cells(
                 cell_props["table_style"] = next(
                     (s for s in cell_styles if s["row"] == ri and s["column"] == ci), {}
                 )
+                style = cell_props["table_style"]
+                cell_color = style.get("fill")
+                cell_props["visual"] = dict(
+                    fill=dict(
+                        kind="solidFill" if cell_color else "noFill",
+                        colors=[cell_color] if cell_color else [],
+                        unknown=[],
+                    ),
+                    line={},
+                    images=[],
+                    effects=False,
+                    order=properties.get("visual", {}).get("order", 0) + 0.5,
+                )
+                style_text_color = style.get("text", {}).get("color")
+                if style_text_color:
+                    for saved, effective in zip(
+                        fake.findall("p:txBody/a:p", NS),
+                        cell_props["paragraphs"],
+                        strict=False,
+                    ):
+                        saved_runs = [
+                            r for r in saved if r.tag in (A + "r", A + "br", A + "fld")
+                        ]
+                        for saved_run, effective_run in zip(
+                            saved_runs, effective["runs"], strict=False
+                        ):
+                            if saved_run.find("a:rPr/a:solidFill", NS) is None:
+                                effective_run["properties"]["color"] = style_text_color
                 result.append(
                     dict(
                         world=cell_world if bounds is not None else world,
