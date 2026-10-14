@@ -22,6 +22,9 @@ uv build
 uv run python scripts/verify_dist.py
 ```
 
+Windows の PowerShell では、日本語ログを扱うため実行前に
+`$env:PYTHONUTF8 = "1"` を設定してください。CI も同じ設定を使用します。
+
 通常のテストは Python の socket 通信を遮断します。依存の取得・配布処理は別です。
 実行時の依存はありません。開発時には python-pptx 等を使用します。
 

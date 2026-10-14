@@ -32,6 +32,7 @@ uv build
 uv run python scripts/verify_dist.py
 ```
 
+- Windows の PowerShell では `$env:PYTHONUTF8 = "1"` を設定してから検証する。
 - 通常の pytest でテスト対象 Python プロセスの socket 通信を既定遮断する。
   通信遮断テストは遮断例外を期待して成功する。実ネットワークには接続しない。
 - 依存取得・配布・CI 自身の通信は対象外。
