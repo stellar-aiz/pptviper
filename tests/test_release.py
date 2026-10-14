@@ -1,4 +1,4 @@
-"""公開を許可するイベント・タグを確認する。"""
+"""Check which events and tags are allowed to publish."""
 
 import pytest
 

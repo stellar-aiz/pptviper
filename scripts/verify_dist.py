@@ -1,4 +1,4 @@
-"""配布物のライセンス・版情報と、独立環境への導入を確認する。"""
+"""Verify distribution metadata, licensing, and installation in isolation."""
 
 import os
 import subprocess
@@ -24,7 +24,11 @@ def main() -> None:
         assert any(n.endswith("/LICENSE") for n in archive.namelist())
     with tarfile.open(sdist) as archive:
         assert any(n.endswith("/LICENSE") for n in archive.getnames())
-    print(f"配布物確認: {wheel.name}, {sdist.name}; MIT; 実行時依存なし", flush=True)
+    print(
+        f"Distributions verified: {wheel.name}, {sdist.name}; "
+        "MIT; no runtime dependencies",
+        flush=True,
+    )
     with tempfile.TemporaryDirectory(prefix="pptviper-dist-") as directory:
         env = Path(directory) / "venv"
         subprocess.run(["uv", "venv", str(env)], check=True)

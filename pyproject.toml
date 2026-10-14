@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pptviper"
 version = "0.1.0"
-description = "PPTX の見た目の問題を描画せずに検査する軽量ライブラリ"
+description = "Lightweight static analysis of visual problems in PPTX files"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

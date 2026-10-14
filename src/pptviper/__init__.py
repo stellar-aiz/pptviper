@@ -1,4 +1,4 @@
-"""PPTX を静的に検査するライブラリの基盤。"""
+"""Foundation for static PPTX inspection."""
 
 from importlib.metadata import version
 

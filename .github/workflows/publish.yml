@@ -1,4 +1,4 @@
-name: 配布
+name: Publish
 on:
   push:
     tags: ["v*.*.*"]

@@ -1,4 +1,4 @@
-name: 検証
+name: Checks
 on:
   pull_request:
   push:

@@ -1,26 +1,33 @@
-# 作業規約
+# Repository guidelines
 
-## 仕様と言語
+## Specification and language
 
-- 仕様の正本は https://github.com/stellar-aiz/pptviper/issues/1。
-  規則 ID・挙動・受け入れ条件を変える前に Epic を更新する。
-- 軽量・best effort、保存情報の優先、不確実性の明示を判断の軸とする。
-- 文書・コメント・コミット・Issue・PR・エージェントのやり取りは日本語にする。
-  API 識別子とライセンス原文はそのまま扱う。
-- コミットは日本語の Conventional Commits。PR はスカッシュでマージする。
+- English is the common language of this repository. Use English for documentation,
+  comments, user-facing application messages, commits, issues, and pull requests.
+  Conversation with the user may be in English or Japanese; keep repository
+  artifacts in English regardless of the conversation language.
+- The authoritative specification is
+  https://github.com/stellar-aiz/pptviper/issues/1.
+  Update the epic before changing rule IDs, behavior, or acceptance criteria.
+- Prioritize lightweight, best-effort analysis, saved presentation data, and
+  explicit uncertainty.
+- Use Conventional Commits in English. Squash pull requests when merging.
 
-## ブランチと依存
+## Branches and dependencies
 
-- 実装はブランチから PR にする。main に直接コミットしない。
-- 空 repo でリモートにブランチが無い初回だけ、ファイルを含まない初期コミットを
-  main に作って push してよい。実装はすべてその上の PR で追加する。
-- 実行時依存は MIT・BSD・Apache-2.0 等の許容的ライセンスに限る。
-  copyleft のものは追加しない。追加する依存の名前・ライセンス・理由を PR に書く。
-- uv.lock をコミットする。実行時依存と開発時依存を分ける。
-- push 前に .gitignore が認証情報・環境変数ファイル・仮想環境を除外するか確認する。
-- PR テンプレートの概要・手動検証・言語チェック・リスク・関連リンクを埋める。
+- Submit implementation changes through a branch and pull request. Do not commit
+  directly to main.
+- For an empty repository with no remote branches, the first commit may be an
+  empty commit on main. All implementation changes must follow in a pull request.
+- Runtime dependencies must use permissive licenses such as MIT, BSD, or
+  Apache-2.0. Do not add copyleft dependencies. List each added dependency, its
+  license, and its purpose in the pull request.
+- Commit uv.lock and keep development dependencies separate from runtime ones.
+- Before pushing, verify that .gitignore excludes credentials, environment files,
+  and virtual environments.
+- Complete the PR template's summary, validation, language check, risks, and links.
 
-## テスト
+## Tests
 
 ```sh
 uv sync --locked
@@ -32,16 +39,18 @@ uv build
 uv run python scripts/verify_dist.py
 ```
 
-- Windows の PowerShell では `$env:PYTHONUTF8 = "1"` を設定してから検証する。
-- 通常の pytest でテスト対象 Python プロセスの socket 通信を既定遮断する。
-  通信遮断テストは遮断例外を期待して成功する。実ネットワークには接続しない。
-- 依存取得・配布・CI 自身の通信は対象外。
-  子プロセスやネイティブコードまでの OS 全体の通信遮断は保証しない。
-- PPTX はテスト内で生成し、バイナリをコミットしない。
-  実行時に生成できない場合だけ例外とし、作り方を添える。
-- tests/pptx_factory.py の single_shape_pptx は位置・大きさを EMU 整数で受け取る。
-  python-pptx は開発用に限る。
-- replace_part で XML 等の既存 ZIP 部品を差し替え、None で削除する。
-  truncate_zip で ZIP を切断する。特殊な構造の専用素材は必要な Issue で追加する。
-- 公開は docs/publishing.md に従う。TestPyPI の実公開確認が残る Issue は、
-  PR のマージだけで自動的に閉じない。
+- On Windows PowerShell, set `$env:PYTHONUTF8 = "1"` before running checks.
+- The default pytest configuration blocks socket access inside the tested Python
+  process. Network-blocking tests expect the blocking exception and pass without
+  contacting a real network endpoint.
+- Dependency installation, publishing, and CI infrastructure traffic are outside
+  this scope. Blocking is not an OS-wide guarantee for subprocesses or native code.
+- Generate PPTX fixtures during tests instead of committing binaries. Exceptions
+  require a documented creation procedure when runtime generation is impossible.
+- tests/pptx_factory.py provides single_shape_pptx, which takes integer EMU
+  coordinates and dimensions. python-pptx is a development-only dependency.
+- Use replace_part to replace an existing ZIP part, or pass None to delete it.
+  Use truncate_zip to truncate the archive. Add specialized fixtures with the issue
+  that needs them.
+- Follow docs/publishing.md for releases. Do not automatically close an issue when
+  its TestPyPI publication check is still outstanding.

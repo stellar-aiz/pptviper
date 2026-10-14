@@ -1,4 +1,4 @@
-"""本番公開のタグと配布版の一致を確認する。"""
+"""Validate the production release tag against the package version."""
 
 import os
 import re
@@ -11,9 +11,9 @@ def check_release(event: str, ref: str, version: str) -> None:
         event != "push"
         or re.fullmatch(r"refs/tags/v[0-9]+\.[0-9]+\.[0-9]+", ref) is None
     ):
-        raise ValueError("本番公開には vX.Y.Z 形式のタグの push が必要です")
+        raise ValueError("Production publishing requires a vX.Y.Z tag push")
     if ref.removeprefix("refs/tags/v") != version:
-        raise ValueError("タグとパッケージのバージョンが一致しません")
+        raise ValueError("Tag and package versions do not match")
 
 
 if __name__ == "__main__":
@@ -23,4 +23,4 @@ if __name__ == "__main__":
         os.environ["GITHUB_REF"],
         project["project"]["version"],
     )
-    print("公開タグとパッケージのバージョンが一致しました")
+    print("Release tag matches the package version")

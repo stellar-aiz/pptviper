@@ -1,9 +1,9 @@
-## 概要
+## Summary
 
-## 手動検証
+## Validation
 
-## 言語チェック
+## Language check
 
-## リスク
+## Risks
 
-## 関連リンク
+## Related links

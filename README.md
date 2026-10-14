@@ -1,15 +1,17 @@
 # pptviper
 
-PPTX の見た目の問題を、描画せずに静的に検査する Python ライブラリと CLI です。
-軽量・best effort を軸に、保存情報を優先し、不確実性を明示します。
-仕様の正本は [Issue #1](https://github.com/stellar-aiz/pptviper/issues/1) です。
+A Python library and CLI for finding visual problems in PPTX files without
+rendering slides. It prioritizes lightweight, best-effort analysis, saved
+presentation data, and explicit uncertainty.
+The specification lives in [Issue #1](https://github.com/stellar-aiz/pptviper/issues/1).
 
-現在は開発基盤のみです。PPTX の検査機能は後続 Issue で実装します。
+Only the development foundation is implemented so far. Presentation inspection
+will be added in subsequent issues.
 
-## 開発
+## Development
 
-Python 3.12 以上と uv が必要です。CI は Python 3.12・3.13・3.14 を
-Linux・macOS・Windows の 9 組み合わせで検証します。
+Python 3.12 or later and uv are required. CI checks Python 3.12, 3.13, and 3.14
+on Linux, macOS, and Windows (nine combinations).
 
 ```sh
 uv sync --locked
@@ -22,10 +24,12 @@ uv build
 uv run python scripts/verify_dist.py
 ```
 
-Windows の PowerShell では、日本語ログを扱うため実行前に
-`$env:PYTHONUTF8 = "1"` を設定してください。CI も同じ設定を使用します。
+On Windows PowerShell, set `$env:PYTHONUTF8 = "1"` before running checks for
+consistent Unicode handling. CI uses the same setting.
 
-通常のテストは Python の socket 通信を遮断します。依存の取得・配布処理は別です。
-実行時の依存はありません。開発時には python-pptx 等を使用します。
+Tests block network access through Python sockets by default. Dependency
+installation and publishing are separate operations. There are no runtime
+dependencies; development dependencies include python-pptx for test fixtures.
 
-作業規約は [AGENTS.md](AGENTS.md)、公開手順は [配布手順](docs/publishing.md) を参照してください。
+See [AGENTS.md](AGENTS.md) for contribution rules and
+[publishing](docs/publishing.md) for release instructions.

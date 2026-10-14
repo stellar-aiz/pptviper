@@ -1,54 +1,58 @@
-# 配布手順
+# Publishing
 
-## 管理者による初期設定
+## Administrator setup
 
-1. PyPI と TestPyPI で配布名 pptviper の利用可否と管理権限を確認する。
-2. 各サービスの Trusted Publisher に次を登録する。新規プロジェクトは
-   Pending Publisher を利用する。
+1. Verify that the name pptviper is available and that you have the necessary
+   permissions on both PyPI and TestPyPI.
+2. Register a Trusted Publisher on each service. Use a Pending Publisher when
+   creating a new project.
 
-| 設定 | 本番 PyPI | TestPyPI |
+| Setting | PyPI | TestPyPI |
 |---|---|---|
-| 所有者 | stellar-aiz | stellar-aiz |
-| リポジトリ | pptviper | pptviper |
-| ワークフロー | publish.yml | publish.yml |
-| 環境名 | pypi | testpypi |
+| Owner | stellar-aiz | stellar-aiz |
+| Repository | pptviper | pptviper |
+| Workflow | publish.yml | publish.yml |
+| Environment | pypi | testpypi |
 
-3. GitHub の Environments に pypi と testpypi を作る。
-   本番環境はリリースタグ、検証環境は main からの公開に使用する。
-   API トークンは保存しない。
+3. Create the pypi and testpypi environments in GitHub. Production publishing uses
+   release tags; test publishing uses main. Do not store API tokens.
 
-## TestPyPI での受け入れ検証
+## TestPyPI acceptance check
 
-コードの main へのマージと公開先設定が済んだ後、GitHub Actions の「配布」を
-main を選択して手動実行する。別ブランチを選択しても公開処理は動かない。
+After the code is merged into main and the publishers are configured, manually
+run the Publish workflow from main. Selecting another branch will not publish.
 
 ```sh
 gh workflow run publish.yml --ref main
 ```
 
-公開成功後、独立環境でその版を取得する。初期版は 0.1.0。
+After publication succeeds, install that version into an independent environment.
+The initial version is 0.1.0.
 
 ```sh
 uv venv /tmp/pptviper-testpypi
-uv pip install --python /tmp/pptviper-testpypi/bin/python --no-deps   --index-url https://test.pypi.org/simple/ pptviper==0.1.0
+uv pip install --python /tmp/pptviper-testpypi/bin/python --no-deps \
+  --index-url https://test.pypi.org/simple/ pptviper==0.1.0
 /tmp/pptviper-testpypi/bin/pptviper --version
 ```
 
-Windows では仮想環境を任意の一時ディレクトリに作り、bin/python と bin/pptviper を
-Scripts/python.exe と Scripts/pptviper.exe に読み替える。
-実行時依存がないため、追加のパッケージ索引は必要ない。
+On Windows, create the environment in a suitable temporary directory and replace
+bin/python and bin/pptviper with Scripts/python.exe and Scripts/pptviper.exe.
+No additional package index is needed because there are no runtime dependencies.
 
-公開したコミット・版・Actions の実行 URL・インストール結果を Issue #2 に記録する。
-AC-3 が未検証の間は Issue を閉じない。管理者設定が不足している場合は、
-不足内容を記録する。手順の存在だけでは AC-3 を合格にしない。
-同じ版は再アップロードできないため、内容を変えて再公開する場合は版を更新する。
+Record the published commit, version, Actions run URL, and installation result in
+Issue #2. Keep the issue open until AC-3 is verified. If administrator setup is
+incomplete, record the missing configuration. Documentation alone does not
+satisfy AC-3. A published file cannot be uploaded again; increment the version
+when publishing changed contents.
 
-## 本番への公開
+## Production release
 
-pyproject.toml の版を更新する PR をマージした後、一致する vX.Y.Z タグを push する。
-タグの形式と版の一致を公開前に検証する。不一致・通常のブランチ更新・PR・手動実行では
-本番へ公開しない。公開先での設定は本番と TestPyPI で別々に必要。
-本番公開は Issue #2 の受け入れ検証には含めない。
+Merge a PR updating the version in pyproject.toml, then push a matching vX.Y.Z tag.
+The workflow checks the tag format and version before publishing. Mismatched
+tags, ordinary branch updates, pull requests, and manual runs do not publish to
+production. PyPI and TestPyPI require separate publisher configuration.
+Production publication is not part of Issue #2's acceptance check.
 
 - [Trusted Publishing](https://docs.pypi.org/trusted-publishers/)
-- [uv による配布](https://docs.astral.sh/uv/guides/publish/)
+- [Publishing with uv](https://docs.astral.sh/uv/guides/publish/)

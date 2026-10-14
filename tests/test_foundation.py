@@ -1,4 +1,4 @@
-"""最小 CLI、PPTX 生成部品、通信遮断の検証。"""
+"""Check the minimal CLI, PPTX fixtures, and network blocking."""
 
 import socket
 from importlib.metadata import version
