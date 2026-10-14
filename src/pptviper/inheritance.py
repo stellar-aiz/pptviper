@@ -195,6 +195,7 @@ def resolve(
                         "lnSpcReduction": "0",
                         **fit.attrib,
                         "source": f"inheritance[{index}]",
+                        "fontScale_defaulted": "fontScale" not in fit.attrib,
                     }
         for fill in shape.findall("./p:spPr/*", NS):
             tag = fill.tag.rsplit("}", 1)[-1]

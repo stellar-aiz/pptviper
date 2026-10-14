@@ -5,12 +5,12 @@ rendering slides. It prioritizes lightweight, best-effort analysis, saved
 presentation data, and explicit uncertainty.
 The specification lives in [Issue #1](https://github.com/stellar-aiz/pptviper/issues/1).
 
-The inspector includes 29 rules: input validation, off-slide geometry, alignment,
+The inspector includes 36 rules: input validation, off-slide geometry, alignment,
 spacing, saved text formatting, title consistency, and table column widths.
 It resolves saved geometry and inheritance and reports unsupported content rather
 than treating it as a clean result. See the [rule catalog](docs/rules.md) for exact
-predicates and candidate domains. Glyph measurement and color contrast are
-subsequent work.
+predicates and candidate domains. Local font metrics and wrapping estimates are described in
+[text layout](docs/text-layout.md). Color contrast is subsequent work.
 
 ## Inspect a presentation
 
@@ -55,8 +55,9 @@ On Windows PowerShell, set `$env:PYTHONUTF8 = "1"` before running checks for
 consistent Unicode handling. CI uses the same setting.
 
 Tests block network access through Python sockets by default. Dependency
-installation and publishing are separate operations. The only runtime dependency
-is defusedxml (PSF license), used to reject XML entities and DTDs. python-pptx,
+installation and publishing are separate operations. Runtime dependencies
+are defusedxml (PSF license), used to reject XML entities and DTDs, and fontTools
+(MIT), used to read local font metrics. python-pptx,
 image libraries pulled in by its fixtures, and JSON Schema validation are
 **development-only** dependencies.
 

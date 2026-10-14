@@ -9,6 +9,8 @@ from email.parser import BytesParser
 from pathlib import Path
 from zipfile import ZipFile
 
+from packaging.requirements import Requirement
+
 
 def main() -> None:
     project = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
@@ -20,9 +22,9 @@ def main() -> None:
         metadata = BytesParser().parsebytes(archive.read(metadata_name))
         assert metadata["License-Expression"] == "MIT"
         assert metadata["Version"] == version
-        assert sorted(metadata.get_all("Requires-Dist", [])) == sorted(
-            project["project"]["dependencies"]
-        )
+        assert {
+            Requirement(value) for value in metadata.get_all("Requires-Dist", [])
+        } == {Requirement(value) for value in project["project"]["dependencies"]}
         assert "pptviper/report.schema.json" in archive.namelist()
         assert any(n.endswith("/LICENSE") for n in archive.namelist())
     with tarfile.open(sdist) as archive:

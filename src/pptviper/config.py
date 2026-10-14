@@ -13,6 +13,9 @@ from pptviper.rule_catalog import RULES, THRESHOLDS
 class Config:
     max_expanded_bytes: int = 2 * 1024**3
     max_parts: int = 10000
+    measure_text: bool = True
+    system_fonts: bool = True
+    font_paths: list[str] = field(default_factory=list)
     off_slide_threshold_emu: int = 0
     suppress: list[dict[str, str]] = field(default_factory=list)
     thresholds: dict[str, int | float | None] = field(
@@ -20,6 +23,12 @@ class Config:
     )
 
     def __post_init__(self) -> None:
+        if type(self.measure_text) is not bool or type(self.system_fonts) is not bool:
+            raise ValueError("measure_text and system_fonts must be booleans")
+        if not isinstance(self.font_paths, list) or any(
+            not isinstance(p, str) or not p for p in self.font_paths
+        ):
+            raise ValueError("font_paths must be a list of nonempty paths")
         for key in ("max_expanded_bytes", "max_parts", "off_slide_threshold_emu"):
             value = getattr(self, key)
             minimum = 0 if key == "off_slide_threshold_emu" else 1
