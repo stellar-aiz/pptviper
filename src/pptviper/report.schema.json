@@ -1,0 +1,526 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stellar-aiz.github.io/pptviper/report.schema.json",
+  "title": "pptviper inspection report",
+  "type": "object",
+  "$defs": {
+    "slide": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "id": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "number",
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "shape": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "slide",
+            "layout",
+            "master"
+          ]
+        },
+        "part": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "origin",
+        "part",
+        "key",
+        "hidden"
+      ],
+      "additionalProperties": false
+    },
+    "measurement": {
+      "type": "object",
+      "properties": {
+        "emu": {
+          "type": "number"
+        },
+        "exact_emu": {
+          "type": "string"
+        },
+        "mm": {
+          "type": "number"
+        },
+        "pt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "emu",
+        "exact_emu",
+        "mm",
+        "pt"
+      ],
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "enum": [
+            "off-slide",
+            "invalid-ooxml",
+            "unreadable-part"
+          ]
+        },
+        "slide": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/slide"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shapes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/shape"
+          }
+        },
+        "measured": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/measurement"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/measurement"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "certain",
+            "worst-case"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "suppressed": {
+          "type": "boolean"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "rule",
+        "slide",
+        "shapes",
+        "measured",
+        "threshold",
+        "confidence",
+        "evidence",
+        "fingerprint",
+        "suppressed",
+        "locator",
+        "details"
+      ],
+      "additionalProperties": false
+    },
+    "unknown": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "enum": [
+            "off-slide",
+            "invalid-ooxml",
+            "unreadable-part"
+          ]
+        },
+        "locator": {
+          "type": "string"
+        },
+        "slide": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/slide"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shapes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/shape"
+          }
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule",
+        "locator",
+        "slide",
+        "shapes",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "candidates": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pass": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "finding": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unknown": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not-applicable": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "candidates",
+        "pass",
+        "finding",
+        "unknown",
+        "not-applicable"
+      ],
+      "additionalProperties": false
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "max_expanded_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_parts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "off_slide_threshold_emu": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "suppress": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule": {
+                "enum": [
+                  "off-slide",
+                  "invalid-ooxml",
+                  "unreadable-part"
+                ]
+              },
+              "slide": {
+                "type": "string"
+              },
+              "shape": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "max_expanded_bytes",
+        "max_parts",
+        "off_slide_threshold_emu",
+        "suppress"
+      ],
+      "additionalProperties": false
+    },
+    "shape_record": {
+      "type": "object",
+      "properties": {
+        "slide": {
+          "$ref": "#/$defs/slide"
+        },
+        "shapes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/shape"
+          }
+        },
+        "locator": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object"
+        },
+        "branch": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bounds": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "type": "object",
+              "properties": {
+                "low": {
+                  "$ref": "#/$defs/measurement"
+                },
+                "high": {
+                  "$ref": "#/$defs/measurement"
+                }
+              },
+              "required": [
+                "low",
+                "high"
+              ],
+              "additionalProperties": false
+            },
+            "top": {
+              "type": "object",
+              "properties": {
+                "low": {
+                  "$ref": "#/$defs/measurement"
+                },
+                "high": {
+                  "$ref": "#/$defs/measurement"
+                }
+              },
+              "required": [
+                "low",
+                "high"
+              ],
+              "additionalProperties": false
+            },
+            "right": {
+              "type": "object",
+              "properties": {
+                "low": {
+                  "$ref": "#/$defs/measurement"
+                },
+                "high": {
+                  "$ref": "#/$defs/measurement"
+                }
+              },
+              "required": [
+                "low",
+                "high"
+              ],
+              "additionalProperties": false
+            },
+            "bottom": {
+              "type": "object",
+              "properties": {
+                "low": {
+                  "$ref": "#/$defs/measurement"
+                },
+                "high": {
+                  "$ref": "#/$defs/measurement"
+                }
+              },
+              "required": [
+                "low",
+                "high"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "left",
+            "top",
+            "right",
+            "bottom"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slide",
+        "shapes",
+        "locator",
+        "properties",
+        "branch"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "off-slide",
+          "invalid-ooxml",
+          "unreadable-part"
+        ]
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "unknown": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unknown"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "configuration"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "off-slide": {
+          "$ref": "#/$defs/coverage"
+        },
+        "invalid-ooxml": {
+          "$ref": "#/$defs/coverage"
+        },
+        "unreadable-part": {
+          "$ref": "#/$defs/coverage"
+        }
+      },
+      "required": [
+        "off-slide",
+        "invalid-ooxml",
+        "unreadable-part"
+      ],
+      "additionalProperties": false
+    },
+    "effective_config": {
+      "$ref": "#/$defs/config"
+    },
+    "shapes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shape_record"
+      }
+    },
+    "unenumerated": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "part": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "part",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "rules",
+    "findings",
+    "unknown",
+    "errors",
+    "coverage",
+    "effective_config",
+    "shapes",
+    "unenumerated",
+    "exit_code"
+  ],
+  "additionalProperties": false
+}

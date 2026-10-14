@@ -23,10 +23,9 @@ def test_version(capsys: pytest.CaptureFixture[str]) -> None:
     assert __version__ == version("pptviper")
 
 
-def test_cli_does_not_pretend_to_inspect() -> None:
-    with pytest.raises(SystemExit) as result:
-        main(["example.pptx"])
-    assert result.value.code == 2
+def test_cli_reports_missing_input(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["example.pptx"]) == 3
+    assert "unreadable-part" in capsys.readouterr().out
 
 
 @pytest.fixture
