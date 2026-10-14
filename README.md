@@ -63,3 +63,7 @@ image libraries pulled in by its fixtures, and JSON Schema validation are
 
 See [AGENTS.md](AGENTS.md) for contribution rules and
 [publishing](docs/publishing.md) for release instructions.
+
+## 実機での受け入れ検証
+
+PowerPoint の較正・見逃し確認の手順は [実機検証ガイド](docs/acceptance.md) を参照してください。
