@@ -594,6 +594,8 @@ def inspect(source, *, config=None, bounds_provider=None):
     config = config or Config()
     if isinstance(config, Config):
         config = replace(
-            config, suppress=[*config.suppress, *({"rule": r} for r in NEW_RULES)]
+            config,
+            measure_text=False,
+            suppress=[*config.suppress, *({"rule": r} for r in NEW_RULES)],
         )
     return inspect_all(source, config=config, bounds_provider=bounds_provider)

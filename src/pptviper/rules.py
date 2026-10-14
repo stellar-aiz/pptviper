@@ -170,6 +170,7 @@ def emit(
             ),
             confidence="worst-case"
             if result.unknown
+            or any(i.props.get("bounds_estimated") for i in items)
             or any(i.bounds and any(v.low != v.high for v in i.bounds) for i in items)
             else result.confidence,
             details=result.details,

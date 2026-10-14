@@ -31,7 +31,16 @@ TEXT_RULES = (
     "text-hygiene",
 )
 NEW_RULES = GEOMETRY_RULES + TEXT_RULES + ("table-column-uneven",)
-RULES = BASE_RULES + NEW_RULES
+LAYOUT_RULES = (
+    "text-overflow",
+    "unbreakable-word",
+    "excessive-wrap",
+    "orphan-line",
+    "font-missing",
+    "table-cell-overflow",
+    "table-overflow",
+)
+RULES = BASE_RULES + NEW_RULES + LAYOUT_RULES
 THRESHOLDS: dict[str, int | float | None] = {
     "edge-margin": 457200,
     "too-close": 273600,

@@ -127,7 +127,14 @@
             "title-duplicate",
             "empty-placeholder",
             "text-hygiene",
-            "table-column-uneven"
+            "table-column-uneven",
+            "text-overflow",
+            "unbreakable-word",
+            "excessive-wrap",
+            "orphan-line",
+            "font-missing",
+            "table-cell-overflow",
+            "table-overflow"
           ]
         },
         "slide": {
@@ -243,7 +250,14 @@
             "title-duplicate",
             "empty-placeholder",
             "text-hygiene",
-            "table-column-uneven"
+            "table-column-uneven",
+            "text-overflow",
+            "unbreakable-word",
+            "excessive-wrap",
+            "orphan-line",
+            "font-missing",
+            "table-cell-overflow",
+            "table-overflow"
           ]
         },
         "locator": {
@@ -361,7 +375,14 @@
                   "title-duplicate",
                   "empty-placeholder",
                   "text-hygiene",
-                  "table-column-uneven"
+                  "table-column-uneven",
+                  "text-overflow",
+                  "unbreakable-word",
+                  "excessive-wrap",
+                  "orphan-line",
+                  "font-missing",
+                  "table-cell-overflow",
+                  "table-overflow"
                 ]
               },
               "slide": {
@@ -420,6 +441,19 @@
               "minimum": 0
             }
           }
+        },
+        "measure_text": {
+          "type": "boolean"
+        },
+        "system_fonts": {
+          "type": "boolean"
+        },
+        "font_paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       },
       "required": [
@@ -427,7 +461,10 @@
         "max_parts",
         "off_slide_threshold_emu",
         "suppress",
-        "thresholds"
+        "thresholds",
+        "measure_text",
+        "system_fonts",
+        "font_paths"
       ],
       "additionalProperties": false
     },
@@ -598,7 +635,14 @@
           "title-duplicate",
           "empty-placeholder",
           "text-hygiene",
-          "table-column-uneven"
+          "table-column-uneven",
+          "text-overflow",
+          "unbreakable-word",
+          "excessive-wrap",
+          "orphan-line",
+          "font-missing",
+          "table-cell-overflow",
+          "table-overflow"
         ]
       }
     },
@@ -722,6 +766,27 @@
         },
         "table-column-uneven": {
           "$ref": "#/$defs/coverage"
+        },
+        "text-overflow": {
+          "$ref": "#/$defs/coverage"
+        },
+        "unbreakable-word": {
+          "$ref": "#/$defs/coverage"
+        },
+        "excessive-wrap": {
+          "$ref": "#/$defs/coverage"
+        },
+        "orphan-line": {
+          "$ref": "#/$defs/coverage"
+        },
+        "font-missing": {
+          "$ref": "#/$defs/coverage"
+        },
+        "table-cell-overflow": {
+          "$ref": "#/$defs/coverage"
+        },
+        "table-overflow": {
+          "$ref": "#/$defs/coverage"
         }
       },
       "required": [
@@ -753,7 +818,14 @@
         "title-duplicate",
         "empty-placeholder",
         "text-hygiene",
-        "table-column-uneven"
+        "table-column-uneven",
+        "text-overflow",
+        "unbreakable-word",
+        "excessive-wrap",
+        "orphan-line",
+        "font-missing",
+        "table-cell-overflow",
+        "table-overflow"
       ],
       "additionalProperties": false
     },

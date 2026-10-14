@@ -9,11 +9,13 @@ from typing import Any
 from xml.etree.ElementTree import Element
 
 from pptviper.config import Config
-from pptviper.geometry import A, Bounds, Matrix, transform
+from pptviper.fonts import FontBook
+from pptviper.geometry import A, Bounds, Matrix, pair, transform
 from pptviper.inheritance import NS, chain, ph, resolve, xfrm
 from pptviper.package import P, Package, R
 from pptviper.report import Report, measurement
 from pptviper.semantics import metadata
+from pptviper.text_layout import evaluate, prepare
 
 MC = "{http://schemas.openxmlformats.org/markup-compatibility/2006}"
 BoundsProvider = Callable[[dict[str, Any], Bounds], tuple[Bounds, list[str]]]
@@ -32,7 +34,7 @@ def inspect(
     config: Config | str | Path | None = None,
     bounds_provider: BoundsProvider | None = None,
 ) -> Report:
-    """Inspect saved presentation data; no rendering, mutation, or font measurement."""
+    """Inspect saved presentation data and local font metrics without rendering."""
     try:
         settings = (
             config
@@ -55,6 +57,7 @@ def inspect(
         )
         return report
     report = Report(settings)
+    book = FontBook(settings.font_paths, settings.system_fonts)
     package = Package(source, report)
     if package.stopped or "package" in package.failed:
         return report
@@ -166,9 +169,11 @@ def inspect(
                 bounds_provider,
                 table_styles,
                 lp,
+                book,
             )
     from pptviper.rules import evaluate_rules
 
+    evaluate(report, width, height)
     evaluate_rules(report, width, height)
     return report
 
@@ -190,6 +195,7 @@ def _inspect_tree(
     provider: BoundsProvider | None,
     table_styles: Element | None,
     layout_part: str | None,
+    book: FontBook,
 ) -> None:
     report = package.report
     # Alternative branches intentionally may reuse a shape ID. Detect duplicates
@@ -324,6 +330,7 @@ def _inspect_tree(
             if node.find(f"p:spPr/a:{effect}", NS) is not None:
                 unknown.append(f"Visual extent of {effect} is not evaluated")
         bounds = None
+        tx = None
         world = parent
         try:
             tx = xfrm(shapes)
@@ -360,6 +367,10 @@ def _inspect_tree(
                 "Text inheritance sources are incomplete"
             )
         record = dict(
+            world=world,
+            local_size=pair(tx, "ext", ("cx", "cy"))
+            if bounds is not None and tx is not None
+            else None,
             ref=ref,
             bounds=bounds,
             unknown=sorted(set(unknown)),
@@ -383,6 +394,8 @@ def _inspect_tree(
                 package,
             ):
                 groups.setdefault(cell["ref"]["key"], []).append(cell)
+    if report.config.measure_text:
+        prepare(groups, book)
     for key, records in groups.items():
         _evaluate(key, records, slide, width, height, report, provider)
 
@@ -449,7 +462,9 @@ def _evaluate(
     state = "unknown" if unresolved else "pass"
     if worst is not None:
         bounds, edges, record = worst
-        approximate = any(v.low != v.high for v in edges.values())
+        approximate = any(v.low != v.high for v in edges.values()) or record[
+            "properties"
+        ].get("bounds_estimated", False)
         report.finding(
             "off-slide",
             key,
@@ -514,6 +529,8 @@ def _table_cells(
                 }
                 unknown = []
                 bounds = None
+                cell_world = world
+                width = height = 0
                 try:
                     width = int(columns[ci].attrib["w"])
                     height = int(row.attrib["h"])
@@ -534,7 +551,7 @@ def _table_cells(
                     ):
                         unknown.append("Merged cell geometry is unresolved")
                     else:
-                        bounds, _ = transform(t, world)
+                        bounds, cell_world = transform(t, world)
                     x += width
                 except (ValueError, KeyError, IndexError):
                     package.invalid(
@@ -551,6 +568,18 @@ def _table_cells(
                     [fake], master, presentation, theme, mapping, table_styles
                 )
                 unknown.extend(issues)
+                cell_attributes = cell.find(A + "tcPr")
+                if cell_attributes is not None:
+                    for source, target in (
+                        ("marL", "lIns"),
+                        ("marR", "rIns"),
+                        ("marT", "tIns"),
+                        ("marB", "bIns"),
+                        ("vert", "vert"),
+                        ("anchor", "anchor"),
+                    ):
+                        if source in cell_attributes.attrib:
+                            cell_props["body"][target] = cell_attributes.attrib[source]
                 cell_props["semantic"] = metadata(
                     fake, [fake], Matrix(), Matrix(), None, None, theme
                 )
@@ -559,6 +588,10 @@ def _table_cells(
                 )
                 result.append(
                     dict(
+                        world=cell_world if bounds is not None else world,
+                        local_size=(F(width), F(height))
+                        if bounds is not None
+                        else None,
                         ref=cell_ref,
                         bounds=bounds,
                         unknown=unknown,
