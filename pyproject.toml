@@ -10,7 +10,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
-dependencies = []
+dependencies = [
+  "defusedxml>=0.7.1",
+]
 
 [project.urls]
 Repository = "https://github.com/stellar-aiz/pptviper"
@@ -26,13 +28,15 @@ dev = [
   "python-pptx>=1,<2",
   "ruff>=0.11,<1",
   "pyright>=1.1.400,<2",
+  "jsonschema>=4.26.0",
+  "types-defusedxml>=0.7.0.20260504",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pptviper"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/tests", "/scripts", "/pyproject.toml", "/README.md", "/LICENSE"]
+include = ["/src", "/tests", "/scripts", "/pyproject.toml", "/README.md", "/LICENSE", "/docs"]
 
 [tool.pytest.ini_options]
 addopts = "--disable-socket -ra"

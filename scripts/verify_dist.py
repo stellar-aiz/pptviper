@@ -20,13 +20,16 @@ def main() -> None:
         metadata = BytesParser().parsebytes(archive.read(metadata_name))
         assert metadata["License-Expression"] == "MIT"
         assert metadata["Version"] == version
-        assert not metadata.get_all("Requires-Dist")
+        assert sorted(metadata.get_all("Requires-Dist", [])) == sorted(
+            project["project"]["dependencies"]
+        )
+        assert "pptviper/report.schema.json" in archive.namelist()
         assert any(n.endswith("/LICENSE") for n in archive.namelist())
     with tarfile.open(sdist) as archive:
         assert any(n.endswith("/LICENSE") for n in archive.getnames())
     print(
         f"Distributions verified: {wheel.name}, {sdist.name}; "
-        "MIT; no runtime dependencies",
+        "MIT; declared runtime dependencies and report schema verified",
         flush=True,
     )
     with tempfile.TemporaryDirectory(prefix="pptviper-dist-") as directory:
@@ -41,8 +44,6 @@ def main() -> None:
                 "install",
                 "--python",
                 str(python),
-                "--no-deps",
-                "--no-index",
                 str(wheel.resolve()),
             ],
             check=True,
