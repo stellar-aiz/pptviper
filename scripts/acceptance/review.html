@@ -1,0 +1,40 @@
+<!doctype html><html lang="ja"><meta charset="utf-8">
+<title>pptviper 実機レビュー</title>
+<style>
+body{font:16px system-ui;margin:24px;max-width:1400px;color:#18232f;background:#faf9f5}input,button,select{font:inherit;margin:4px;padding:7px}button{cursor:pointer}.layout{display:grid;grid-template-columns:2fr 1fr;gap:24px}.canvas{position:relative;align-self:start}.canvas img{width:100%;display:block}.box{position:absolute;border:2px solid #ca3b16;pointer-events:none;box-sizing:border-box}.mark{position:absolute;background:#b80048;color:white;border-radius:50%;padding:3px;pointer-events:none}aside{max-height:75vh;overflow:auto}label{display:block}#rules{columns:3}#status{white-space:pre-wrap}summary{cursor:pointer;padding:8px}li{margin:8px 0}@media(max-width:800px){.layout{display:block}#rules{columns:1}}
+</style>
+<h1>PowerPoint の画像と検査結果の突き合わせ</h1>
+<p>画像の問題位置をクリックして見逃しを記録します。画像背景の文字は「判定不能」に載っていれば期待どおりです。載っていなければ見逃しを記録してください。</p>
+<label>実施者 <input id="operator"></label><label>OS と版 <input id="os"></label>
+<label>PowerPoint の版 <input id="version"></label>
+<label><input type="checkbox" id="privacy">デッキ・画像・注記に機密が含まれないことを確認した</label>
+<details><summary>全規則の確認観点（全スライドで確認後、チェック）</summary><div id="rules"></div></details>
+<nav><button id="previous">前へ</button><select id="slide"></select><button id="next">次へ</button>
+<label><input type="checkbox" id="reviewed">このスライドの確認を終えた</label></nav>
+<div class="layout"><div class="canvas" id="canvas"><img id="image" alt="PowerPoint から書き出したスライド"></div>
+<aside><h2>指摘・誤検出</h2><div id="findings"></div><h2>判定不能</h2><ul id="unknown"></ul><h2>見逃し</h2><ul id="misses"></ul></aside></div>
+<button id="export">記録 JSON を保存</button><input id="import" type="file" accept="application/json"><pre id="status"></pre>
+<script>
+const data=__PAYLOAD__;
+const $=id=>document.getElementById(id);
+let index=0, completed=new Set(), falsePositives=new Set(), misses=[];
+function elem(tag,text,parent){const e=document.createElement(tag);e.textContent=text;parent.append(e);return e}
+for(const r of data.rules){const label=elem('label','', $('rules')),input=document.createElement('input');input.type='checkbox';input.value=r;label.append(input,document.createTextNode(r))}
+for(const s of data.slides){const o=elem('option',String(s.number),$('slide'));o.value=String(s.number-1)}
+const shapeMap=new Map(data.report.shapes.flatMap(record=>record.shapes.map(ref=>[`${record.slide.number}:${ref.key}`,record])));
+function show(){const s=data.slides[index];$('image').src=s.image;$('slide').value=String(index);$('reviewed').checked=completed.has(s.number);
+for(const e of $('canvas').querySelectorAll('.box,.mark'))e.remove();$('findings').replaceChildren();$('unknown').replaceChildren();$('misses').replaceChildren();
+for(const f of data.report.findings.filter(f=>!f.slide||f.slide.number===s.number)){
+const label=elem('label','', $('findings')), check=document.createElement('input');check.type='checkbox';check.checked=falsePositives.has(f.fingerprint);check.onchange=()=>check.checked?falsePositives.add(f.fingerprint):falsePositives.delete(f.fingerprint);label.append(check,document.createTextNode('誤検出: '+f.rule+(f.suppressed?'（抑制済み）':'')+' — '+f.evidence));
+for(const ref of f.shapes){const record=shapeMap.get(`${s.number}:${ref.key}`);if(!record?.bounds||record.slide.number!==s.number)continue;const b=record.bounds;
+const x=b.left.low.emu,y=b.top.low.emu,w=b.right.high.emu-x,h=b.bottom.high.emu-y;const box=elem('div','', $('canvas'));box.className='box';box.style.cssText=`left:${x/data.width*100}%;top:${y/data.height*100}%;width:${w/data.width*100}%;height:${h/data.height*100}%`;}}
+for(const u of data.report.unknown.filter(u=>!u.slide||u.slide.number===s.number))elem('li',u.rule+' — '+u.reason,$('unknown'));
+misses.forEach((m,i)=>{if(m.slide!==s.number)return;const li=elem('li',m.rule+' '+m.note+' ', $('misses'));const del=elem('button','削除',li);del.onclick=()=>{misses.splice(i,1);show()};const mark=elem('div',String(i+1),$('canvas'));mark.className='mark';mark.style.left=m.x*100+'%';mark.style.top=m.y*100+'%'});
+$('status').textContent=`確認済み ${completed.size}/${data.slides.length} ・見逃し ${misses.length} ・誤検出 ${falsePositives.size}`;}
+$('slide').onchange=()=>{index=Number($('slide').value);show()};$('previous').onclick=()=>{index=Math.max(0,index-1);show()};$('next').onclick=()=>{index=Math.min(data.slides.length-1,index+1);show()};
+$('reviewed').onchange=()=>{$('reviewed').checked?completed.add(data.slides[index].number):completed.delete(data.slides[index].number);show()};
+$('canvas').onclick=event=>{const rule=prompt('規則名（不明なら other）','low-contrast');if(rule===null)return;const note=prompt('見逃した問題の説明','');if(note===null)return;const rect=$('canvas').getBoundingClientRect();misses.push({slide:data.slides[index].number,rule,note,x:Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width)),y:Math.max(0,Math.min(1,(event.clientY-rect.top)/rect.height))});show()};
+$('export').onclick=()=>{const result={schema_version:1,deck_sha256:data.deck_sha256,report_sha256:data.report_sha256,provenance:data.provenance,operator:$('operator').value,os:$('os').value,powerpoint_version:$('version').value,confidentiality_reviewed:$('privacy').checked,images:data.slides.map(s=>({number:s.number,sha256:s.sha256})),reviewed_slides:[...completed].sort((a,b)=>a-b),checked_rules:[...$('rules').querySelectorAll('input:checked')].map(i=>i.value),false_positives:[...falsePositives].sort(),misses};const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='review.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('import').onchange=async()=>{try{const r=JSON.parse(await $('import').files[0].text());if(r.deck_sha256!==data.deck_sha256||r.report_sha256!==data.report_sha256)throw Error('デッキまたは検査結果が一致しません');completed=new Set(r.reviewed_slides);falsePositives=new Set(r.false_positives);misses=r.misses;$('operator').value=r.operator;$('os').value=r.os;$('version').value=r.powerpoint_version;$('privacy').checked=r.confidentiality_reviewed;for(const e of $('rules').querySelectorAll('input'))e.checked=r.checked_rules.includes(e.value);show()}catch(e){$('status').textContent=String(e)}};
+show();
+</script></html>
