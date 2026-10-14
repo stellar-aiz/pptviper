@@ -25,6 +25,7 @@ def measurement(value: Fraction) -> dict[str, Any]:
 @dataclass
 class Report:
     config: Config = field(default_factory=Config)
+    slide_contexts: dict[str, dict[str, Any]] = field(default_factory=dict)
     findings: list[dict[str, Any]] = field(default_factory=list)
     unknown: list[dict[str, Any]] = field(default_factory=list)
     errors: list[dict[str, Any]] = field(default_factory=list)

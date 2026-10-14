@@ -5,10 +5,12 @@ rendering slides. It prioritizes lightweight, best-effort analysis, saved
 presentation data, and explicit uncertainty.
 The specification lives in [Issue #1](https://github.com/stellar-aiz/pptviper/issues/1).
 
-The initial inspector supports `off-slide`, `invalid-ooxml`, and `unreadable-part`.
+The inspector includes 29 rules: input validation, off-slide geometry, alignment,
+spacing, saved text formatting, title consistency, and table column widths.
 It resolves saved geometry and inheritance and reports unsupported content rather
-than treating it as a clean result. Text measurement and the remaining visual
-rules are subsequent work.
+than treating it as a clean result. See the [rule catalog](docs/rules.md) for exact
+predicates and candidate domains. Glyph measurement and color contrast are
+subsequent work.
 
 ## Inspect a presentation
 

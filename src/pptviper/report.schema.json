@@ -54,6 +54,9 @@
         },
         "hidden": {
           "type": "boolean"
+        },
+        "slide_id": {
+          "type": "string"
         }
       },
       "required": [
@@ -98,7 +101,33 @@
           "enum": [
             "off-slide",
             "invalid-ooxml",
-            "unreadable-part"
+            "unreadable-part",
+            "edge-margin",
+            "overlap",
+            "too-close",
+            "misaligned",
+            "uneven-gap",
+            "uneven-size",
+            "zero-size",
+            "tiny-shape",
+            "hidden-shape",
+            "connector-unattached",
+            "position-drift",
+            "layout-override",
+            "autofit-shrunk",
+            "font-too-small",
+            "font-size-inconsistent",
+            "line-spacing-inconsistent",
+            "font-family-count",
+            "east-asian-font-unset",
+            "empty-paragraph-spacing",
+            "manual-line-break",
+            "bullet-inconsistent",
+            "title-missing",
+            "title-duplicate",
+            "empty-placeholder",
+            "text-hygiene",
+            "table-column-uneven"
           ]
         },
         "slide": {
@@ -124,6 +153,9 @@
             },
             {
               "type": "null"
+            },
+            {
+              "$ref": "#/$defs/metric"
             }
           ]
         },
@@ -134,6 +166,9 @@
             },
             {
               "type": "null"
+            },
+            {
+              "$ref": "#/$defs/metric"
             }
           ]
         },
@@ -182,7 +217,33 @@
           "enum": [
             "off-slide",
             "invalid-ooxml",
-            "unreadable-part"
+            "unreadable-part",
+            "edge-margin",
+            "overlap",
+            "too-close",
+            "misaligned",
+            "uneven-gap",
+            "uneven-size",
+            "zero-size",
+            "tiny-shape",
+            "hidden-shape",
+            "connector-unattached",
+            "position-drift",
+            "layout-override",
+            "autofit-shrunk",
+            "font-too-small",
+            "font-size-inconsistent",
+            "line-spacing-inconsistent",
+            "font-family-count",
+            "east-asian-font-unset",
+            "empty-paragraph-spacing",
+            "manual-line-break",
+            "bullet-inconsistent",
+            "title-missing",
+            "title-duplicate",
+            "empty-placeholder",
+            "text-hygiene",
+            "table-column-uneven"
           ]
         },
         "locator": {
@@ -274,7 +335,33 @@
                 "enum": [
                   "off-slide",
                   "invalid-ooxml",
-                  "unreadable-part"
+                  "unreadable-part",
+                  "edge-margin",
+                  "overlap",
+                  "too-close",
+                  "misaligned",
+                  "uneven-gap",
+                  "uneven-size",
+                  "zero-size",
+                  "tiny-shape",
+                  "hidden-shape",
+                  "connector-unattached",
+                  "position-drift",
+                  "layout-override",
+                  "autofit-shrunk",
+                  "font-too-small",
+                  "font-size-inconsistent",
+                  "line-spacing-inconsistent",
+                  "font-family-count",
+                  "east-asian-font-unset",
+                  "empty-paragraph-spacing",
+                  "manual-line-break",
+                  "bullet-inconsistent",
+                  "title-missing",
+                  "title-duplicate",
+                  "empty-placeholder",
+                  "text-hygiene",
+                  "table-column-uneven"
                 ]
               },
               "slide": {
@@ -287,13 +374,60 @@
             "required": [],
             "additionalProperties": false
           }
+        },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "edge-margin",
+            "too-close",
+            "misaligned",
+            "tiny-shape",
+            "font-too-small",
+            "font-too-small-note",
+            "font-family-count"
+          ],
+          "properties": {
+            "edge-margin": {
+              "type": "number",
+              "minimum": 0
+            },
+            "too-close": {
+              "type": "number",
+              "minimum": 0
+            },
+            "misaligned": {
+              "type": "number",
+              "minimum": 0
+            },
+            "tiny-shape": {
+              "type": "number",
+              "minimum": 0
+            },
+            "font-too-small": {
+              "type": "number",
+              "minimum": 0
+            },
+            "font-too-small-note": {
+              "type": "number",
+              "minimum": 0
+            },
+            "font-family-count": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
         }
       },
       "required": [
         "max_expanded_bytes",
         "max_parts",
         "off_slide_threshold_emu",
-        "suppress"
+        "suppress",
+        "thresholds"
       ],
       "additionalProperties": false
     },
@@ -406,6 +540,26 @@
         "branch"
       ],
       "additionalProperties": false
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "exact_value",
+        "unit"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "exact_value": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
     }
   },
   "properties": {
@@ -418,7 +572,33 @@
         "enum": [
           "off-slide",
           "invalid-ooxml",
-          "unreadable-part"
+          "unreadable-part",
+          "edge-margin",
+          "overlap",
+          "too-close",
+          "misaligned",
+          "uneven-gap",
+          "uneven-size",
+          "zero-size",
+          "tiny-shape",
+          "hidden-shape",
+          "connector-unattached",
+          "position-drift",
+          "layout-override",
+          "autofit-shrunk",
+          "font-too-small",
+          "font-size-inconsistent",
+          "line-spacing-inconsistent",
+          "font-family-count",
+          "east-asian-font-unset",
+          "empty-paragraph-spacing",
+          "manual-line-break",
+          "bullet-inconsistent",
+          "title-missing",
+          "title-duplicate",
+          "empty-placeholder",
+          "text-hygiene",
+          "table-column-uneven"
         ]
       }
     },
@@ -464,12 +644,116 @@
         },
         "unreadable-part": {
           "$ref": "#/$defs/coverage"
+        },
+        "edge-margin": {
+          "$ref": "#/$defs/coverage"
+        },
+        "overlap": {
+          "$ref": "#/$defs/coverage"
+        },
+        "too-close": {
+          "$ref": "#/$defs/coverage"
+        },
+        "misaligned": {
+          "$ref": "#/$defs/coverage"
+        },
+        "uneven-gap": {
+          "$ref": "#/$defs/coverage"
+        },
+        "uneven-size": {
+          "$ref": "#/$defs/coverage"
+        },
+        "zero-size": {
+          "$ref": "#/$defs/coverage"
+        },
+        "tiny-shape": {
+          "$ref": "#/$defs/coverage"
+        },
+        "hidden-shape": {
+          "$ref": "#/$defs/coverage"
+        },
+        "connector-unattached": {
+          "$ref": "#/$defs/coverage"
+        },
+        "position-drift": {
+          "$ref": "#/$defs/coverage"
+        },
+        "layout-override": {
+          "$ref": "#/$defs/coverage"
+        },
+        "autofit-shrunk": {
+          "$ref": "#/$defs/coverage"
+        },
+        "font-too-small": {
+          "$ref": "#/$defs/coverage"
+        },
+        "font-size-inconsistent": {
+          "$ref": "#/$defs/coverage"
+        },
+        "line-spacing-inconsistent": {
+          "$ref": "#/$defs/coverage"
+        },
+        "font-family-count": {
+          "$ref": "#/$defs/coverage"
+        },
+        "east-asian-font-unset": {
+          "$ref": "#/$defs/coverage"
+        },
+        "empty-paragraph-spacing": {
+          "$ref": "#/$defs/coverage"
+        },
+        "manual-line-break": {
+          "$ref": "#/$defs/coverage"
+        },
+        "bullet-inconsistent": {
+          "$ref": "#/$defs/coverage"
+        },
+        "title-missing": {
+          "$ref": "#/$defs/coverage"
+        },
+        "title-duplicate": {
+          "$ref": "#/$defs/coverage"
+        },
+        "empty-placeholder": {
+          "$ref": "#/$defs/coverage"
+        },
+        "text-hygiene": {
+          "$ref": "#/$defs/coverage"
+        },
+        "table-column-uneven": {
+          "$ref": "#/$defs/coverage"
         }
       },
       "required": [
         "off-slide",
         "invalid-ooxml",
-        "unreadable-part"
+        "unreadable-part",
+        "edge-margin",
+        "overlap",
+        "too-close",
+        "misaligned",
+        "uneven-gap",
+        "uneven-size",
+        "zero-size",
+        "tiny-shape",
+        "hidden-shape",
+        "connector-unattached",
+        "position-drift",
+        "layout-override",
+        "autofit-shrunk",
+        "font-too-small",
+        "font-size-inconsistent",
+        "line-spacing-inconsistent",
+        "font-family-count",
+        "east-asian-font-unset",
+        "empty-paragraph-spacing",
+        "manual-line-break",
+        "bullet-inconsistent",
+        "title-missing",
+        "title-duplicate",
+        "empty-placeholder",
+        "text-hygiene",
+        "table-column-uneven"
       ],
       "additionalProperties": false
     },

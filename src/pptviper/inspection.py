@@ -13,6 +13,7 @@ from pptviper.geometry import A, Bounds, Matrix, transform
 from pptviper.inheritance import NS, chain, ph, resolve, xfrm
 from pptviper.package import P, Package, R
 from pptviper.report import Report, measurement
+from pptviper.semantics import metadata
 
 MC = "{http://schemas.openxmlformats.org/markup-compatibility/2006}"
 BoundsProvider = Callable[[dict[str, Any], Bounds], tuple[Bounds, list[str]]]
@@ -99,6 +100,7 @@ def inspect(
             sid = f"malformed-slide-{ordinal}"
         ids.add(sid)
         slide = dict(number=ordinal, id=sid)
+        report.slide_contexts[sid] = dict(slide=slide, complete=False)
         rel = relationships.get(entry.get(R + "id", ""))
         if rel is None or rel[0] != "slide" or rel[2]:
             package.failure(
@@ -110,6 +112,9 @@ def inspect(
         root = package.root(sp)
         if root is None:
             continue
+        report.slide_contexts[sid]["complete"] = (
+            root.find("p:cSld/p:spTree", NS) is not None
+        )
         slide["hidden"] = root.get("show", "1") in ("0", "false")
         lp = package.related(sp, "slideLayout")
         layout = package.root(lp) if lp else None
@@ -160,7 +165,11 @@ def inspect(
                 package,
                 bounds_provider,
                 table_styles,
+                lp,
             )
+    from pptviper.rules import evaluate_rules
+
+    evaluate_rules(report, width, height)
     return report
 
 
@@ -180,6 +189,7 @@ def _inspect_tree(
     package: Package,
     provider: BoundsProvider | None,
     table_styles: Element | None,
+    layout_part: str | None,
 ) -> None:
     report = package.report
     # Alternative branches intentionally may reuse a shape ID. Detect duplicates
@@ -201,6 +211,7 @@ def _inspect_tree(
             continue
         if node.tag in METADATA:
             if node.tag == P + "extLst":
+                report.slide_contexts[str(slide["id"])]["complete"] = False
                 report.unresolved(
                     "Uninterpreted shape-tree extension",
                     locator=part + ":" + path,
@@ -208,6 +219,7 @@ def _inspect_tree(
                 )
             continue
         if node.tag not in SHAPES:
+            report.slide_contexts[str(slide["id"])]["complete"] = False
             key = part + ":" + path
             report.unresolved(
                 "Unsupported shape-tree element: " + node.tag, locator=key, slide=slide
@@ -332,6 +344,21 @@ def _inspect_tree(
                 stack.append(
                     (child, world, path + "/" + str(j), bounds is None, alternative)
                 )
+        properties["semantic"] = metadata(
+            node, shapes, parent, world, layout, layout_part, theme
+        )
+        properties["semantic"]["text_unknown"] = [
+            reason
+            for reason in unknown
+            if any(
+                token in reason.lower()
+                for token in ("font", "paragraph", "placeholder", "properties could")
+            )
+        ]
+        if layout is None or master is None or theme is None:
+            properties["semantic"]["text_unknown"].append(
+                "Text inheritance sources are incomplete"
+            )
         record = dict(
             ref=ref,
             bounds=bounds,
@@ -524,6 +551,9 @@ def _table_cells(
                     [fake], master, presentation, theme, mapping, table_styles
                 )
                 unknown.extend(issues)
+                cell_props["semantic"] = metadata(
+                    fake, [fake], Matrix(), Matrix(), None, None, theme
+                )
                 cell_props["table_style"] = next(
                     (s for s in cell_styles if s["row"] == ri and s["column"] == ci), {}
                 )

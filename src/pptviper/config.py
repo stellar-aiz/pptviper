@@ -1,11 +1,12 @@
 """Validated, explicit inspection settings."""
 
+import math
 import tomllib
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-RULES = ("off-slide", "invalid-ooxml", "unreadable-part")
+from pptviper.rule_catalog import RULES, THRESHOLDS
 
 
 @dataclass
@@ -14,6 +15,9 @@ class Config:
     max_parts: int = 10000
     off_slide_threshold_emu: int = 0
     suppress: list[dict[str, str]] = field(default_factory=list)
+    thresholds: dict[str, int | float | None] = field(
+        default_factory=lambda: dict(THRESHOLDS)
+    )
 
     def __post_init__(self) -> None:
         for key in ("max_expanded_bytes", "max_parts", "off_slide_threshold_emu"):
@@ -21,6 +25,23 @@ class Config:
             minimum = 0 if key == "off_slide_threshold_emu" else 1
             if type(value) is not int or value < minimum:
                 raise ValueError(f"{key} must be an integer >= {minimum}")
+        if not isinstance(self.thresholds, dict) or set(self.thresholds) - set(
+            THRESHOLDS
+        ):
+            raise ValueError("Unknown threshold key")
+        self.thresholds = {**THRESHOLDS, **self.thresholds}
+        for key, value in self.thresholds.items():
+            if value is None and key == "font-family-count":
+                continue
+            if (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or (isinstance(value, float) and not math.isfinite(value))
+                or value < 0
+            ):
+                raise ValueError(f"{key} threshold must be finite and nonnegative")
+            if key == "font-family-count" and type(value) is not int:
+                raise ValueError("font-family-count threshold must be an integer")
         if not isinstance(self.suppress, list):
             raise ValueError("suppress must be an array of tables")
         for s in self.suppress:
@@ -47,7 +68,11 @@ class Config:
     def suppressed(self, rule: str, slide: str, shapes: list[dict[str, Any]]) -> bool:
         return any(
             ("rule" not in s or s["rule"] == rule)
-            and ("slide" not in s or s["slide"] == slide)
+            and (
+                "slide" not in s
+                or s["slide"] == slide
+                or any(p.get("slide_id") == s["slide"] for p in shapes)
+            )
             and ("shape" not in s or any(s["shape"] == p["key"] for p in shapes))
             for s in self.suppress
         )
