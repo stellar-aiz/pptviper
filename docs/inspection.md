@@ -14,6 +14,11 @@ max_expanded_bytes = 2147483648
 max_parts = 10000
 off_slide_threshold_emu = 0
 
+[thresholds]
+edge-margin = 457200
+font-too-small = 12
+# Omit font-family-count to use distinct theme families + 1.
+
 [[suppress]]
 rule = "off-slide"
 slide = "256"
@@ -25,8 +30,12 @@ selector is required. Slide selectors use saved `sldId`, not slide ordinal.
 Shape selectors use the report's `key`, which includes the source part. A master
 logo can therefore be suppressed across slides, or on a single slide by adding
 its stable slide ID. Unknown settings, rules, and invalid types are errors.
-Only implemented rules can be configured. Thresholds and resource limits are
-integers; boolean values are not accepted as integers.
+Only implemented rules can be configured. Resource limits and the original
+`off_slide_threshold_emu` are integers. New `[thresholds]` values are finite,
+nonnegative numbers; `font-family-count` is an integer. Booleans are rejected.
+See [rules](rules.md) for defaults, units, candidate domains, and boundaries.
+For cross-slide findings, a slide selector matches any participating slide;
+shape and slide selectors are independently ANDed against the finding's members.
 
 The report includes all effective settings. Suppression retains the finding and
 its coverage state. An unreadable part always causes exit 3, even when its finding
@@ -147,3 +156,19 @@ Callbacks are optional and execute in the caller's process. Their bounds must be
 in slide coordinates. They must retain saved geometry when text expansion is not
 applicable and return every unresolved limitation. The core inspector itself
 starts no subprocesses and uses no network connections.
+
+## Additional static rules
+
+All 26 [additional rules](rules.md) use the same effective bounds, including
+bounds-provider replacements. Their measured values use `value`, `exact_value`,
+and `unit` (EMU, EMU², pt, ratio, or count). Bounds and the original off-slide
+measurement retain `emu`/`exact_emu` for compatibility. Configurable limits appear
+in `threshold`; predicate-specific values also appear in `details`. A null
+threshold denotes a structural predicate or a fixed comparison described in the
+catalog. Cross-slide finding members include `slide_id`.
+
+For these additional rules, AlternateContent candidates are marked unresolved
+instead of choosing a branch or comparing alternatives as coexisting peers.
+The existing off-slide rule still evaluates all supported branches. Unknown
+geometry leaves run membership unresolved. Unsupported shape-tree content and
+unreadable slides keep aggregate enumeration explicitly incomplete.

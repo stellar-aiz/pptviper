@@ -15,12 +15,14 @@ from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.util import Emu
 
-from pptviper import Bounds, Config, inspect
+from pptviper import Bounds, Config
+from pptviper import inspect as inspect_all
 from pptviper.cli import main
 from pptviper.geometry import A, Interval, Matrix, transform, trig
 from pptviper.inheritance import NS, color, resolve_table
 from pptviper.package import P
 from pptviper.report import Report
+from pptviper.rule_catalog import NEW_RULES
 from tests.pptx_factory import replace_part, single_shape_pptx
 
 SLIDE = "ppt/slides/slide1.xml"
@@ -294,7 +296,7 @@ def test_ac11_suppression(selector: dict[str, str]) -> None:
     r = inspect(fixture(-1), config=Config(suppress=[selector]))
     assert r.exit_code == 0 and findings(r)[0]["suppressed"]
     assert r.to_dict()["coverage"]["off-slide"]["finding"] == 1
-    assert r.to_dict()["effective_config"]["suppress"] == [selector]
+    assert r.to_dict()["effective_config"]["suppress"][0] == selector
 
 
 @pytest.mark.parametrize(
@@ -304,7 +306,7 @@ def test_ac11_suppression(selector: dict[str, str]) -> None:
         "max_parts = true",
         "max_parts = 0",
         "off_slide_threshold_emu = -1",
-        '[[suppress]]\nrule="overlap"',
+        '[[suppress]]\nrule="not-a-rule"',
         "[[suppress]]\nslide=256",
         'suppress="bad"',
     ],
@@ -583,3 +585,15 @@ def test_unknown_property_is_visible() -> None:
     r = inspect(save(data, node))
     assert r.exit_code == 2
     assert any("futureProperty" in u["reason"] for u in r.unknown)
+
+
+def inspect(source, *, config=None, bounds_provider=None):
+    """Keep foundation assertions scoped to the original three rules."""
+    from dataclasses import replace
+
+    config = config or Config()
+    if isinstance(config, Config):
+        config = replace(
+            config, suppress=[*config.suppress, *({"rule": r} for r in NEW_RULES)]
+        )
+    return inspect_all(source, config=config, bounds_provider=bounds_provider)

@@ -340,7 +340,17 @@ def resolve(
                 if child.tag == A + "defRPr":
                     run_defaults.update(run_values(child))
                 else:
-                    children[child.tag.rsplit("}", 1)[-1]] = structure(child)
+                    tag = child.tag.rsplit("}", 1)[-1]
+                    for choices in (
+                        ("buNone", "buChar", "buAutoNum", "buBlip"),
+                        ("buSzPct", "buSzPts", "buSzTx"),
+                        ("buFont", "buFontTx"),
+                        ("buClr", "buClrTx"),
+                    ):
+                        if tag in choices:
+                            for old in choices:
+                                children.pop(old, None)
+                    children[tag] = structure(child)
         runs = []
         for run in paragraph:
             if run.tag not in (A + "r", A + "fld", A + "br"):
