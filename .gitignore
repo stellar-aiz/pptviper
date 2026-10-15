@@ -1,15 +1,41 @@
-.venv/
-.worktrees/
+# Python
 __pycache__/
-.pytest_cache/
-.ruff_cache/
+*.py[cod]
 *.egg-info/
 build/
 dist/
+
+# Virtual environments
+.venv/
+
+# Tool caches and reports
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Credentials and environment files
 .env
 .env.*
 !.env.example
+.pypirc
+*.pem
+*.key
 auth.json
 internal_storage.json
 version.json
+
+# Local git worktrees
+.worktrees/
+
+# Office lock files
+~$*
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
 .DS_Store
+Thumbs.db
