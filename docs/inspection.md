@@ -107,7 +107,8 @@ table style definitions resolve whole-table, banding, first/last row and column
 fills/text properties, followed by direct cell fill. Merged-cell geometry and
 missing built-in table style definitions remain unresolved. Cell style sources
 and raw stored properties are exposed for later text/color rules. [Text layout](text-layout.md) adds saved-font measurement and estimated row
-growth. Composited backgrounds, effects, and contrast remain separate work. Unsupported content is not a clean bill of health.
+growth. [Color and image rules](color-images.md) add supported background compositing and
+contrast; effects still retain explicit uncertainty. Unsupported content is not a clean bill of health.
 
 Every Choice/Fallback branch of AlternateContent is inspected. Alternatives with
 the same shape ID at the same AlternateContent site share one candidate; the

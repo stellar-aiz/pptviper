@@ -13,6 +13,7 @@ from pptviper.rule_catalog import RULES, THRESHOLDS
 class Config:
     max_expanded_bytes: int = 2 * 1024**3
     max_parts: int = 10000
+    contrast_level: str = "AA"
     measure_text: bool = True
     system_fonts: bool = True
     font_paths: list[str] = field(default_factory=list)
@@ -23,6 +24,8 @@ class Config:
     )
 
     def __post_init__(self) -> None:
+        if self.contrast_level not in ("AA", "AAA"):
+            raise ValueError("contrast_level must be AA or AAA")
         if type(self.measure_text) is not bool or type(self.system_fonts) is not bool:
             raise ValueError("measure_text and system_fonts must be booleans")
         if not isinstance(self.font_paths, list) or any(

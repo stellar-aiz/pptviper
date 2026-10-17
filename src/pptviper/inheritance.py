@@ -118,6 +118,35 @@ def color(
         value = colors.get(mapping.get(value, value), "")
     elif kind == "sysClr":
         value = node.get("lastClr", "")
+    elif kind == "prstClr":
+        from pptviper.preset_colors import PRESET
+
+        key = value
+        for prefix, expanded in (("dk", "dark"), ("lt", "light"), ("med", "medium")):
+            if key.startswith(prefix):
+                key = expanded + key[len(prefix) :]
+                break
+        value = PRESET.get(key.lower(), "")
+    elif kind in ("scrgbClr", "hslClr"):
+        try:
+            if kind == "scrgbClr":
+                channels = [int(node.attrib[k]) / 100000 for k in ("r", "g", "b")]
+                rgb = [
+                    12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055
+                    for c in channels
+                ]
+            else:
+                rgb = list(
+                    colorsys.hls_to_rgb(
+                        int(node.attrib["hue"]) / 21600000,
+                        int(node.attrib["lum"]) / 100000,
+                        int(node.attrib["sat"]) / 100000,
+                    )
+                )
+            value = "".join(f"{round(min(1, max(0, c)) * 255):02x}" for c in rgb)
+        except (ValueError, KeyError, OverflowError):
+            unknown.append("Invalid direct color")
+            return None
     elif kind != "srgbClr":
         unknown.append(f"Unsupported color representation: {kind}")
         return None
@@ -161,7 +190,7 @@ def color(
             alpha=round(min(1, max(0, alpha)), 6),
             source=structure(node),
         )
-    except (ValueError, KeyError):
+    except (ValueError, KeyError, OverflowError):
         unknown.append("Unresolved or invalid color value")
         return None
 

@@ -22,7 +22,7 @@ from pptviper.geometry import A, Interval, Matrix, transform, trig
 from pptviper.inheritance import NS, color, resolve_table
 from pptviper.package import P
 from pptviper.report import Report
-from pptviper.rule_catalog import NEW_RULES
+from pptviper.rule_catalog import COLOR_RULES, NEW_RULES
 from tests.pptx_factory import replace_part, single_shape_pptx
 
 SLIDE = "ppt/slides/slide1.xml"
@@ -596,6 +596,12 @@ def inspect(source, *, config=None, bounds_provider=None):
         config = replace(
             config,
             measure_text=False,
-            suppress=[*config.suppress, *({"rule": r} for r in NEW_RULES)],
+            suppress=[
+                *config.suppress,
+                *({"rule": r} for r in NEW_RULES + COLOR_RULES),
+            ],
         )
-    return inspect_all(source, config=config, bounds_provider=bounds_provider)
+    result = inspect_all(source, config=config, bounds_provider=bounds_provider)
+    # Foundation assertions exclude later rule-specific uncertainty.
+    result.unknown = [u for u in result.unknown if u["rule"] not in COLOR_RULES]
+    return result

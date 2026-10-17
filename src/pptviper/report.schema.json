@@ -134,7 +134,15 @@
             "orphan-line",
             "font-missing",
             "table-cell-overflow",
-            "table-overflow"
+            "table-overflow",
+            "low-contrast",
+            "low-contrast-non-text",
+            "off-theme-color",
+            "near-duplicate-color",
+            "color-count",
+            "image-distorted",
+            "image-low-resolution",
+            "image-crop-outside"
           ]
         },
         "slide": {
@@ -257,7 +265,15 @@
             "orphan-line",
             "font-missing",
             "table-cell-overflow",
-            "table-overflow"
+            "table-overflow",
+            "low-contrast",
+            "low-contrast-non-text",
+            "off-theme-color",
+            "near-duplicate-color",
+            "color-count",
+            "image-distorted",
+            "image-low-resolution",
+            "image-crop-outside"
           ]
         },
         "locator": {
@@ -382,7 +398,15 @@
                   "orphan-line",
                   "font-missing",
                   "table-cell-overflow",
-                  "table-overflow"
+                  "table-overflow",
+                  "low-contrast",
+                  "low-contrast-non-text",
+                  "off-theme-color",
+                  "near-duplicate-color",
+                  "color-count",
+                  "image-distorted",
+                  "image-low-resolution",
+                  "image-crop-outside"
                 ]
               },
               "slide": {
@@ -454,6 +478,12 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "contrast_level": {
+          "enum": [
+            "AA",
+            "AAA"
+          ]
         }
       },
       "required": [
@@ -464,7 +494,8 @@
         "thresholds",
         "measure_text",
         "system_fonts",
-        "font_paths"
+        "font_paths",
+        "contrast_level"
       ],
       "additionalProperties": false
     },
@@ -642,7 +673,15 @@
           "orphan-line",
           "font-missing",
           "table-cell-overflow",
-          "table-overflow"
+          "table-overflow",
+          "low-contrast",
+          "low-contrast-non-text",
+          "off-theme-color",
+          "near-duplicate-color",
+          "color-count",
+          "image-distorted",
+          "image-low-resolution",
+          "image-crop-outside"
         ]
       }
     },
@@ -787,6 +826,30 @@
         },
         "table-overflow": {
           "$ref": "#/$defs/coverage"
+        },
+        "low-contrast": {
+          "$ref": "#/$defs/coverage"
+        },
+        "low-contrast-non-text": {
+          "$ref": "#/$defs/coverage"
+        },
+        "off-theme-color": {
+          "$ref": "#/$defs/coverage"
+        },
+        "near-duplicate-color": {
+          "$ref": "#/$defs/coverage"
+        },
+        "color-count": {
+          "$ref": "#/$defs/coverage"
+        },
+        "image-distorted": {
+          "$ref": "#/$defs/coverage"
+        },
+        "image-low-resolution": {
+          "$ref": "#/$defs/coverage"
+        },
+        "image-crop-outside": {
+          "$ref": "#/$defs/coverage"
         }
       },
       "required": [
@@ -825,7 +888,15 @@
         "orphan-line",
         "font-missing",
         "table-cell-overflow",
-        "table-overflow"
+        "table-overflow",
+        "low-contrast",
+        "low-contrast-non-text",
+        "off-theme-color",
+        "near-duplicate-color",
+        "color-count",
+        "image-distorted",
+        "image-low-resolution",
+        "image-crop-outside"
       ],
       "additionalProperties": false
     },

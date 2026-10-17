@@ -5,12 +5,12 @@ rendering slides. It prioritizes lightweight, best-effort analysis, saved
 presentation data, and explicit uncertainty.
 The specification lives in [Issue #1](https://github.com/stellar-aiz/pptviper/issues/1).
 
-The inspector includes 36 rules: input validation, off-slide geometry, alignment,
+The inspector includes 44 rules: input validation, off-slide geometry, alignment,
 spacing, saved text formatting, title consistency, and table column widths.
 It resolves saved geometry and inheritance and reports unsupported content rather
 than treating it as a clean result. See the [rule catalog](docs/rules.md) for exact
 predicates and candidate domains. Local font metrics and wrapping estimates are described in
-[text layout](docs/text-layout.md). Color contrast is subsequent work.
+[text layout](docs/text-layout.md). See [color and images](docs/color-images.md) for contrast, palette and image checks.
 
 ## Inspect a presentation
 
